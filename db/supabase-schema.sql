@@ -59,24 +59,32 @@ create trigger cockpit_activate_user after insert or update of email_confirmed_a
 create function cockpit_private.validate_config(c jsonb) returns void language plpgsql set search_path='' as $$
 declare x jsonb; k text; v date;
 begin
- if jsonb_typeof(c)<>'object' or octet_length(c::text)>65536 or not(c ?& array['period','asOf','clubs','tools','news']) then raise exception 'Ungültige Konfiguration.'; end if;
+ if jsonb_typeof(c) is distinct from 'object' or octet_length(c::text)>65536 or not(c ?& array['period','asOf','clubs','tools','news']) then raise exception 'Ungültige Konfiguration.'; end if;
+ if jsonb_typeof(c->'period') is distinct from 'string' or jsonb_typeof(c->'asOf') is distinct from 'string' then raise exception 'Berichtsmonat und Ausgangsdatum fehlen.'; end if;
  if c->>'period' !~ '^20[0-9]{2}-(0[1-9]|1[0-2])$' or c->>'asOf' !~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}$' then raise exception 'Ungültiger Berichtsmonat.'; end if;
  v:=(c->>'asOf')::date;
  if v < (c->>'period'||'-01')::date-1 or v >= ((c->>'period'||'-01')::date+interval '1 month')::date then raise exception 'Ausgangsstand muss im Berichtsmonat oder am Vortag liegen.'; end if;
  if jsonb_typeof(c->'tools')<>'array' or jsonb_array_length(c->'tools')>30 or jsonb_typeof(c->'clubs')<>'array' or jsonb_array_length(c->'clubs') not between 1 and 30 then raise exception 'Ungültige Kacheln oder Standorte.'; end if;
  if (select count(*)<>count(distinct a->>'id') from jsonb_array_elements(c->'clubs') a) or (select count(*)<>count(distinct a->>'id') from jsonb_array_elements(c->'tools') a) then raise exception 'Doppelte Kennung.'; end if;
  for x in select * from jsonb_array_elements(c->'clubs') loop
+  if jsonb_typeof(x->'id') is distinct from 'string' or jsonb_typeof(x->'name') is distinct from 'string' then raise exception 'Standortkennung und Name fehlen.'; end if;
   if not(x ?& array['id','name','contracts','target','departures']) or length(x->>'id') not between 1 and 50 or length(x->>'name') not between 1 and 50 then raise exception 'Ungültiger Standort.'; end if;
   foreach k in array array['contracts','target','departures'] loop
    if jsonb_typeof(x->k)<>'number' or x->>k !~ '^[0-9]{1,6}$' then raise exception 'Ungültige Vertragszahlen.'; end if;
   end loop;
  end loop;
  for x in select * from jsonb_array_elements(c->'tools') loop
+  foreach k in array array['id','name','description','url','icon','color','kind'] loop
+   if jsonb_typeof(x->k) is distinct from 'string' then raise exception 'Kachelfelder müssen Text enthalten.'; end if;
+  end loop;
   if not(x ?& array['id','name','description','url','icon','color','kind']) or length(x->>'id') not between 1 and 80 or length(trim(x->>'name')) not between 1 and 45 or length(x->>'description')>100 or length(x->>'url')>2048 then raise exception 'Ungültige Kachel.'; end if;
   if x->>'url'<>'' and (x->>'url' !~ '^https://[^/@[:space:]]+([/?#]|$)' or x->>'url' ~ '[[:cntrl:]]') then raise exception 'Nur vollständige HTTPS-Links sind erlaubt.'; end if;
   if x->>'kind' not in ('link','statistics','memberships','design-studio','partners') or x->>'color' not in ('orange','blue','green','purple','slate') or x->>'icon' not in ('members','fitness','mail','chart','leads','office','link','tasks','contracts','files','payments','marketing','health','activity','cycling','awards','timer','clock','appointments','checkin','knowledge','training','ideas','help','security') then raise exception 'Ungültige Kacheleigenschaften.'; end if;
  end loop;
  x:=c->'news';
+ foreach k in array array['mode','title','text'] loop
+  if jsonb_typeof(x->k) is distinct from 'string' then raise exception 'News-Felder müssen Text enthalten.'; end if;
+ end loop;
  if not(x ?& array['enabled','mode','title','text']) or jsonb_typeof(x->'enabled')<>'boolean' or x->>'mode' not in ('static','ticker') or length(x->>'title')>100 or length(x->>'text')>1500 then raise exception 'Ungültige News.'; end if;
 end $$;
 

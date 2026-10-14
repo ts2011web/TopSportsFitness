@@ -25,6 +25,8 @@ Die Edge Function `cockpit-users` prüft den Token mit Auth getUser und die aktu
 
 `tests/supabase-security.sql` prüft echte Datenbankrechte und CÜ-Operationen in einer zurückgerollten Transaktion. Keine Testmeldungen bleiben zurück. Vor Freigabe zusätzlich die echte Anmelde- und Mitarbeitererfassung im Browser prüfen.
 
+Prüfstand 14.10.2026: Datenbanktests einschließlich Korrektur, Historie, Rechteentzug, fremdem Standort und doppelten Tagen bestanden. Browserbedienung mit vollständig abgefangenen externen Anfragen geprüft (Desktop/Mobil, Anmeldung, CÜ-Erfassung, Korrektur und Zugangsverwaltung). Keine echten Browser-Testmeldungen angelegt; temporäre Auth-Testkonten vollständig entfernt. TypeScript und Pages-Build erfolgreich. Nach gezielten Paketupdates meldet `npm audit --omit=dev` 0 bekannte Schwachstellen. Das ersetzt keine vollständige Sicherheitsgarantie oder den noch ausstehenden echten Anmeldetest des Eigentümers.
+
 ## Erhaltene Module und offene Betriebsentscheidungen
 
 Der Design-Editor einschließlich bearbeitbarem Kursplan wird übernommen. Eigene Editorentwürfe bleiben browserlokal. Firmen-/Vereinsfitness bleibt vorerst im bisherigen, ausdrücklich gekennzeichneten Beispielmodus; dessen eigene Partnerdatenbank, Rollen und Alt-Funktionen sind durch die Cockpit-Anbindung noch nicht wiederhergestellt. Vor realer Partnerpflege separat migrieren und testen.
