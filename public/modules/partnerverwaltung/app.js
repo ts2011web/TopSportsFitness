@@ -1,0 +1,1326 @@
+const partnerPreview = window.TSF_PARTNER_CONFIG?.mode !== "supabase";
+const STORAGE_KEY = "tsf-partnerverwaltung-v3";
+
+const pageByFile = {
+  "index.html": "uebersicht",
+  "": "uebersicht",
+  "firmenfitness.html": "firmenfitness",
+  "vereinsfitness.html": "vereinsfitness",
+  "verwaltung.html": "verwaltung",
+  "benutzer.html": "benutzer",
+};
+
+const navItems = [
+  { id: "uebersicht", label: "Übersicht", href: "index.html", icon: "▦" },
+  { id: "firmenfitness", label: "Firmenfitness", href: "firmenfitness.html", icon: "▤" },
+  { id: "vereinsfitness", label: "Vereinsfitness", href: "vereinsfitness.html", icon: "▥" },
+  { id: "verwaltung", label: "Verwaltung", href: "verwaltung.html", icon: "▧" },
+  { id: "benutzer", label: "Benutzer", href: "benutzer.html", icon: "♙" },
+];
+
+// Fictional demonstration records only; never loaded or imported in Supabase mode.
+const seedPartners = [
+  {
+    "id": "demo-firma-1",
+    "type": "firma",
+    "name": "Musterwerk Technik GmbH (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Echterdingen",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "49.90"
+      },
+      {
+        "months": 12,
+        "amount": "39.90"
+      },
+      {
+        "months": 24,
+        "amount": "34.90"
+      }
+    ],
+    "hasTransponderFee": true,
+    "hasServiceFee": true,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-firma-2",
+    "type": "firma",
+    "name": "Beispielblick Medien GmbH (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Reutlingen",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "49.90"
+      },
+      {
+        "months": 12,
+        "amount": "39.90"
+      },
+      {
+        "months": 24,
+        "amount": "34.90"
+      }
+    ],
+    "hasTransponderFee": false,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-firma-3",
+    "type": "firma",
+    "name": "Demopuls Software GmbH (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Leinfelden",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "49.90"
+      },
+      {
+        "months": 12,
+        "amount": "39.90"
+      },
+      {
+        "months": 24,
+        "amount": "34.90"
+      }
+    ],
+    "hasTransponderFee": true,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-firma-4",
+    "type": "firma",
+    "name": "Musterpfad Logistik GmbH (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Kornwestheim",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "49.90"
+      },
+      {
+        "months": 12,
+        "amount": "39.90"
+      },
+      {
+        "months": 24,
+        "amount": "34.90"
+      }
+    ],
+    "hasTransponderFee": false,
+    "hasServiceFee": true,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-firma-5",
+    "type": "firma",
+    "name": "Beispielraum Design GmbH (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Nürtingen",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "49.90"
+      },
+      {
+        "months": 12,
+        "amount": "39.90"
+      },
+      {
+        "months": 24,
+        "amount": "34.90"
+      }
+    ],
+    "hasTransponderFee": true,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-firma-6",
+    "type": "firma",
+    "name": "Demowert Beratung GmbH (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Degerloch",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "49.90"
+      },
+      {
+        "months": 12,
+        "amount": "39.90"
+      },
+      {
+        "months": 24,
+        "amount": "34.90"
+      }
+    ],
+    "hasTransponderFee": false,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-verein-1",
+    "type": "verein",
+    "name": "Mustersport Team e. V. (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Echterdingen",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "44.90"
+      },
+      {
+        "months": 12,
+        "amount": "34.90"
+      },
+      {
+        "months": 24,
+        "amount": "29.90"
+      }
+    ],
+    "hasTransponderFee": true,
+    "hasServiceFee": true,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-verein-2",
+    "type": "verein",
+    "name": "Beispielball Verein e. V. (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Reutlingen",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "44.90"
+      },
+      {
+        "months": 12,
+        "amount": "34.90"
+      },
+      {
+        "months": 24,
+        "amount": "29.90"
+      }
+    ],
+    "hasTransponderFee": false,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-verein-3",
+    "type": "verein",
+    "name": "Demolauf Gemeinschaft e. V. (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Leinfelden",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "44.90"
+      },
+      {
+        "months": 12,
+        "amount": "34.90"
+      },
+      {
+        "months": 24,
+        "amount": "29.90"
+      }
+    ],
+    "hasTransponderFee": true,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-verein-4",
+    "type": "verein",
+    "name": "Musterkraft Sportverein e. V. (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Kornwestheim",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "44.90"
+      },
+      {
+        "months": 12,
+        "amount": "34.90"
+      },
+      {
+        "months": 24,
+        "amount": "29.90"
+      }
+    ],
+    "hasTransponderFee": false,
+    "hasServiceFee": true,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-verein-5",
+    "type": "verein",
+    "name": "Beispielrad Club e. V. (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Nürtingen",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "44.90"
+      },
+      {
+        "months": 12,
+        "amount": "34.90"
+      },
+      {
+        "months": 24,
+        "amount": "29.90"
+      }
+    ],
+    "hasTransponderFee": true,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  },
+  {
+    "id": "demo-verein-6",
+    "type": "verein",
+    "name": "Demofit Freizeitverein e. V. (Beispiel)",
+    "contactName": "",
+    "contactPhone": "",
+    "contactEmail": "",
+    "studio": "Degerloch",
+    "closedBy": "",
+    "lastContact": "2026-09-01",
+    "contractUrl": "",
+    "terms": [
+      {
+        "months": 1,
+        "amount": "44.90"
+      },
+      {
+        "months": 12,
+        "amount": "34.90"
+      },
+      {
+        "months": 24,
+        "amount": "29.90"
+      }
+    ],
+    "hasTransponderFee": false,
+    "hasServiceFee": false,
+    "conditions": "Fiktives Tarifbeispiel. Kein gültiges Angebot.",
+    "notes": "Frei erfundener Partner für die Demonstration.",
+    "status": "aktiv"
+  }
+];
+
+const currentFile = window.location.pathname.split("/").pop();
+const state = {
+  page: pageByFile[currentFile] || "uebersicht",
+  role: window.tsfAuth?.readSession()?.role || "employee",
+  query: "",
+  studio: "alle",
+  formOpen: false,
+  partners: loadPartners(),
+};
+
+const $ = (selector) => document.querySelector(selector);
+const els = {
+  desktopNav: $("#desktopNav"),
+  mobileNav: $("#mobileNav"),
+  breadcrumbPage: $("#breadcrumbPage"),
+  currentRoleLabel: $("#currentRoleLabel"),
+  globalSearch: $("#globalSearch"),
+  pageEyebrow: $("#pageEyebrow"),
+  pageTitle: $("#pageTitle"),
+  pageDescription: $("#pageDescription"),
+  pagePrimaryAction: $("#pagePrimaryAction"),
+  partnerSearch: $("#partnerSearch"),
+  studioFilter: $("#studioFilter"),
+  overviewSections: $("#overviewSections"),
+  partnerTableBody: $("#partnerTableBody"),
+  partnerMobileList: $("#partnerMobileList"),
+  resultCount: $("#resultCount"),
+  resetFilters: $("#resetFilters"),
+  emptyReset: $("#emptyReset"),
+  emptyState: $("#emptyState"),
+  adminPanel: $("#adminPanel"),
+  partnerForm: $("#partnerForm"),
+  formError: $("#formError"),
+  cancelEdit: $("#cancelEdit"),
+  detailBackdrop: $("#detailBackdrop"),
+  detailDrawer: $("#detailDrawer"),
+  drawerType: $("#drawerType"),
+  drawerTitle: $("#drawerTitle"),
+  drawerBody: $("#drawerBody"),
+  closeDrawer: $("#closeDrawer"),
+  toast: $("#toast"),
+  logoutButton: $("#logoutButton"),
+};
+
+function isAdmin() {
+  return state.role === "admin";
+}
+
+function canManagePartners() {
+  return state.role === "clubManager" || state.role === "admin";
+}
+
+function visibleNavItems() {
+  return navItems.filter((item) => {
+    if (item.id === "verwaltung") return canManagePartners();
+    if (item.id === "benutzer") return isAdmin();
+    return true;
+  });
+}
+
+function loadPartners() {
+  return partnerPreview ? structuredClone(seedPartners) : [];
+}
+
+function savePartners() {
+  if (partnerPreview) return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.partners));
+}
+
+function typeLabel(type) {
+  return type === "firma" ? "Firmenfitness" : "Vereinsfitness";
+}
+
+function formatMoney(value) {
+  const raw = String(value ?? "").trim().replace("€", "").replace(/eur/i, "").trim();
+  const parsed = Number(raw.replace(/\./g, "").replace(",", "."));
+  if (!raw) return "";
+  if (Number.isNaN(parsed)) return raw;
+  return new Intl.NumberFormat("de-DE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(parsed);
+}
+
+function formatPartnerConditions(partner) {
+  if (Array.isArray(partner.terms) && partner.terms.length) {
+    const tariffText = partner.terms
+      .filter((term) => term.months && term.amount)
+      .map((term) => {
+        const months = Number(term.months);
+        const duration = months === 1 ? "1 Monat" : `${months} Monate`;
+        return `${duration} ${formatMoney(term.amount)} €`;
+      })
+      .join(" / ");
+    const fees = [];
+
+    if (partner.hasTransponderFee) fees.push("zzgl. einmalig 29,90 € Transpondergebühr");
+    if (partner.hasServiceFee) fees.push("zzgl. 29,90 € halbjährliche Servicepauschale");
+
+    return `${typeLabel(partner.type)} ${tariffText}${fees.length ? `, ${fees.join(" und ")}` : ""}.`;
+  }
+
+  if (partner.termMonths && partner.termAmount) {
+    const months = Number(partner.termMonths);
+    const duration = months === 1 ? "1 Monat" : `${months} Monate`;
+    const fees = [];
+
+    if (partner.hasTransponderFee) fees.push("zzgl. einmalig 29,90 € Transpondergebühr");
+    if (partner.hasServiceFee) fees.push("zzgl. 29,90 € halbjährliche Servicepauschale");
+
+    return `${typeLabel(partner.type)} ${duration} ${formatMoney(partner.termAmount)} €${fees.length ? `, ${fees.join(" und ")}` : ""}.`;
+  }
+
+  return partner.conditions || "";
+}
+
+function cooperationContractUrl(value) {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function escapeHtml(value) {
+  const element = document.createElement("span");
+  element.textContent = value;
+  return element.innerHTML;
+}
+
+function formatDate(value) {
+  return new Intl.DateTimeFormat("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(`${value}T12:00:00`));
+}
+
+function statusBadge(status) {
+  const map = {
+    aktiv: ["badge-active", "Aktiv"],
+    offen: ["badge-open", "Ausstehend"],
+    kritisch: ["badge-critical", "Kritisch"],
+  };
+  const [className, label] = map[status] || ["badge-neutral", "Neutral"];
+  return `<span class="badge ${className}">${label}</span>`;
+}
+
+function pageTypeFilter() {
+  if (state.page === "firmenfitness") return "firma";
+  if (state.page === "vereinsfitness") return "verein";
+  return "alle";
+}
+
+function filteredPartners() {
+  const filter = pageTypeFilter();
+  const query = state.query.trim().toLowerCase();
+
+  return state.partners.filter((partner) => {
+    const matchesStatus = canManagePartners() || partner.status === "aktiv";
+    const matchesType = filter === "alle" || partner.type === filter;
+    const matchesStudio = state.studio === "alle" || partner.studio === state.studio;
+    const conditionText = formatPartnerConditions(partner);
+    const publicText = [partner.name, typeLabel(partner.type), conditionText].join(" ").toLowerCase();
+    const adminText = [
+      partner.name,
+      typeLabel(partner.type),
+      conditionText,
+      partner.contactName,
+      partner.contactEmail,
+      partner.contactPhone,
+      partner.notes,
+      partner.closedBy,
+      partner.studio,
+    ].join(" ").toLowerCase();
+
+    return matchesStatus && matchesType && matchesStudio && (!query || (canManagePartners() ? adminText : publicText).includes(query));
+  });
+}
+
+function renderNavigation() {
+  const items = visibleNavItems();
+  const markup = items
+    .map(
+      (item) => `
+        <a class="nav-item ${state.page === item.id ? "is-active" : ""}" href="${item.href}">
+          <span aria-hidden="true">${item.icon}</span>
+          <span>${item.label}</span>
+        </a>
+      `
+    )
+    .join("");
+
+  els.desktopNav.innerHTML = markup;
+  els.mobileNav.innerHTML = markup;
+  els.mobileNav.style.setProperty("--nav-item-count", items.length);
+}
+
+function renderHeader() {
+  const configs = {
+    uebersicht: [
+      "Partnerdatenbank",
+      "Firmenfitness-/Vereinsfitnesspartner",
+      "Suche nach Firmen und Vereinen und prüfe die freigegebenen Konditionen.",
+      "",
+    ],
+    firmenfitness: [
+      "Firmenfitness",
+      "Firmenpartner",
+      "Alle freigegebenen Firmenfitness-Partnerschaften und Konditionen im Überblick.",
+      "Firmenpartner anlegen",
+    ],
+    vereinsfitness: [
+      "Vereinsfitness",
+      "Vereinspartner",
+      "Alle freigegebenen Vereinsfitness-Partnerschaften und Konditionen im Überblick.",
+      "Vereinspartner anlegen",
+    ],
+    verwaltung: [
+      "Verwaltung",
+      "Partner verwalten",
+      "Kooperationen prüfen, freigeben, bearbeiten und löschen.",
+      "Partner anlegen",
+    ],
+  };
+
+  const config = configs[state.page];
+  els.pageEyebrow.textContent = config[0];
+  els.pageTitle.textContent = config[1];
+  els.pageDescription.textContent = canManagePartners() ? config[2] : config[2].replace("anlegen, bearbeiten und löschen", "anzeigen");
+  els.breadcrumbPage.textContent = navItems.find((item) => item.id === state.page)?.label || "Übersicht";
+  const roleLabels = { employee: "Theke", clubManager: "Clubleiter", admin: "Admin" };
+  els.currentRoleLabel.textContent = roleLabels[state.role] || "Theke";
+  if (els.pagePrimaryAction) {
+    els.pagePrimaryAction.textContent = `+ ${config[3]}`;
+    els.pagePrimaryAction.hidden = !canManagePartners();
+  }
+  document.body.dataset.page = state.page;
+  document.body.dataset.role = state.role;
+}
+
+function renderTableHeader() {
+  const adminColumns = canManagePartners() ? "<th>Ansprechpartner</th><th>Letzter Kontakt</th><th>Status</th>" : "";
+  return `<tr><th>Partner</th><th>Art</th><th>Konditionen</th>${adminColumns}<th>Aktion</th></tr>`;
+}
+
+function renderList() {
+  const partners = filteredPartners();
+  els.resultCount.textContent = partners.length === 1 ? "1 Eintrag" : `${partners.length} Einträge`;
+  els.emptyState.hidden = partners.length > 0;
+  ensureExportButton();
+  document.querySelector("thead").innerHTML = renderTableHeader();
+  els.partnerTableBody.innerHTML = partners.map(renderTableRow).join("");
+  els.partnerMobileList.innerHTML = partners.map(renderMobileCard).join("");
+
+  document.querySelectorAll("[data-view]").forEach((button) => {
+    button.addEventListener("click", (event) => { event.stopPropagation(); openDrawer(button.dataset.view); });
+  });
+  document.querySelectorAll("[data-edit]").forEach((button) => {
+    button.addEventListener("click", (event) => { event.stopPropagation(); editPartner(button.dataset.edit); });
+  });
+  document.querySelectorAll("[data-approve]").forEach((button) => {
+    button.addEventListener("click", (event) => { event.stopPropagation(); approvePartner(button.dataset.approve); });
+  });
+  document.querySelectorAll("[data-view-row]").forEach((row) => {
+    row.addEventListener("click", () => openDrawer(row.dataset.viewRow));
+    row.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openDrawer(row.dataset.viewRow);
+      }
+    });
+  });
+  document.querySelectorAll("[data-delete]").forEach((button) => {
+    button.addEventListener("click", (event) => { event.stopPropagation(); deletePartner(button.dataset.delete); });
+  });
+}
+
+function canExportCurrentPage() {
+  return canManagePartners() && (state.page === "firmenfitness" || state.page === "vereinsfitness");
+}
+
+function ensureExportButton() {
+  const existing = $("#exportXlsx");
+  if (!canExportCurrentPage()) {
+    if (existing) existing.remove();
+    return;
+  }
+  if (existing) return;
+
+  const button = document.createElement("button");
+  button.className = "btn btn-secondary";
+  button.id = "exportXlsx";
+  button.type = "button";
+  button.textContent = "XLSX exportieren";
+  button.addEventListener("click", exportCurrentPartners);
+  els.resetFilters.before(button);
+}
+
+function renderTableRow(partner) {
+  const conditionText = formatPartnerConditions(partner);
+  const adminColumns = canManagePartners()
+    ? `
+      <td><div class="partner-name"><strong>${partner.contactName}</strong><span>${partner.contactEmail}</span></div></td>
+      <td>${formatDate(partner.lastContact)}</td>
+      <td>${statusBadge(partner.status)}</td>
+    `
+    : "";
+
+  return `
+    <tr data-view-row="${partner.id}" tabindex="0" aria-label="${partner.name} Details öffnen">
+      <td><div class="partner-name"><strong>${partner.name}</strong><span>${canManagePartners() ? partner.studio : typeLabel(partner.type)}</span></div></td>
+      <td>${typeLabel(partner.type)}</td>
+      <td>${conditionText}</td>
+      ${adminColumns}
+      <td><div class="row-actions"><button class="icon-btn" type="button" data-view="${partner.id}" aria-label="${partner.name} öffnen">↗</button>${adminActions(partner)}</div></td>
+    </tr>
+  `;
+}
+
+function renderMobileCard(partner) {
+  const conditionText = formatPartnerConditions(partner);
+  const adminMeta = canManagePartners()
+    ? `<span>${partner.contactName} · ${partner.contactPhone}</span><span>Letzter Kontakt: ${formatDate(partner.lastContact)}</span>`
+    : "";
+
+  return `
+    <article class="mobile-card" data-view-row="${partner.id}" tabindex="0" aria-label="${partner.name} Details öffnen">
+      <div class="mobile-card-top">
+        <div class="partner-name"><strong>${partner.name}</strong><span>${typeLabel(partner.type)}${canManagePartners() ? ` · ${partner.studio}` : ""}</span></div>
+        ${canManagePartners() ? statusBadge(partner.status) : ""}
+      </div>
+      <div class="mobile-meta"><span>${conditionText}</span>${adminMeta}</div>
+      <div class="mobile-actions"><button class="btn btn-secondary" type="button" data-view="${partner.id}">Öffnen</button>${canManagePartners() && partner.status !== "aktiv" ? `<button class="btn btn-secondary" type="button" data-approve="${partner.id}">Freigeben</button>` : ""}${canManagePartners() ? `<button class="btn btn-danger" type="button" data-delete="${partner.id}">Löschen</button>` : ""}</div>
+    </article>
+  `;
+}
+
+function adminActions(partner) {
+  if (!canManagePartners()) return "";
+  return `
+    ${partner.status !== "aktiv" ? `<button class="icon-btn" type="button" data-approve="${partner.id}" aria-label="${partner.name} freigeben">✓</button>` : ""}
+    <button class="icon-btn" type="button" data-edit="${partner.id}" aria-label="${partner.name} bearbeiten">✎</button>
+    <button class="icon-btn btn-danger" type="button" data-delete="${partner.id}" aria-label="${partner.name} löschen">×</button>
+  `;
+}
+
+function approvePartner(id) {
+  if (!canManagePartners()) return;
+  const partner = state.partners.find((item) => item.id === id);
+  if (!partner) return;
+  partner.status = "aktiv";
+  savePartners();
+  render();
+  showToast(`${partner.name} wurde freigegeben.`);
+}
+
+function openDrawer(id) {
+  const partner = state.partners.find((item) => item.id === id);
+  if (!partner) return;
+  const conditionText = formatPartnerConditions(partner);
+
+  const adminSections = canManagePartners()
+    ? `
+      <div class="detail-section"><span>Ansprechpartner</span><strong>${partner.contactName}</strong><p>${partner.contactPhone}</p><p>${partner.contactEmail}</p></div>
+      <div class="detail-section"><span>Besonderheiten</span><p>${partner.notes || "Keine Besonderheiten hinterlegt."}</p></div>
+      <div class="detail-section"><span>Kooperation</span><p>Geschlossen von: ${partner.closedBy}</p><p>Zuständiges Studio: ${partner.studio}</p><p>Letzter Kontakt: ${formatDate(partner.lastContact)}</p></div>
+      <div class="detail-section"><span>Kooperationsvertrag</span>${cooperationContractUrl(partner.contractUrl) ? `<a class="btn btn-secondary contract-link" href="${escapeHtml(cooperationContractUrl(partner.contractUrl))}" target="_blank" rel="noopener noreferrer">Vertrag in OneDrive öffnen ↗</a>` : "<p>Noch kein Vertragslink hinterlegt.</p>"}</div>
+      <button class="btn btn-secondary" type="button" data-edit="${partner.id}">Bearbeiten</button>
+    `
+    : "";
+
+  els.drawerType.textContent = typeLabel(partner.type);
+  els.drawerTitle.textContent = partner.name;
+  els.drawerBody.innerHTML = `<div class="detail-section"><span>Konditionen</span><p>${conditionText}</p></div>${adminSections}`;
+  els.detailBackdrop.hidden = false;
+  els.detailDrawer.classList.add("is-open");
+  els.detailDrawer.setAttribute("aria-hidden", "false");
+  els.closeDrawer.focus();
+  els.drawerBody.querySelectorAll("[data-edit]").forEach((button) => {
+    button.addEventListener("click", () => editPartner(button.dataset.edit));
+  });
+}
+
+function closeDrawer() {
+  els.detailDrawer.classList.remove("is-open");
+  els.detailDrawer.setAttribute("aria-hidden", "true");
+  setTimeout(() => {
+    if (!els.detailDrawer.classList.contains("is-open")) els.detailBackdrop.hidden = true;
+  }, 220);
+}
+
+function editPartner(id) {
+  const partner = state.partners.find((item) => item.id === id);
+  if (!partner) return;
+  if (state.page === "verwaltung") {
+    openPartnerForm(partner);
+    return;
+  }
+  window.location.href = `verwaltung.html?edit=${encodeURIComponent(id)}`;
+}
+
+function deletePartner(id) {
+  const partner = state.partners.find((item) => item.id === id);
+  if (!partner || !confirm(`${partner.name} wirklich löschen?`)) return;
+  state.partners = state.partners.filter((item) => item.id !== id);
+  savePartners();
+  render();
+  showToast(`${partner.name} wurde gelöscht.`);
+}
+
+function openPartnerForm(partner = null) {
+  if (!canManagePartners()) return;
+  if (!partner && state.page === "uebersicht") return;
+  state.formOpen = true;
+  els.adminPanel.hidden = false;
+  document.body.classList.add("modal-open");
+  if (partner) fillForm(partner);
+  else resetForm();
+  updatePartnerFormCopy(partner);
+  if (!partner && (state.page === "firmenfitness" || state.page === "vereinsfitness")) {
+    $("#partnerType").value = pageTypeFilter();
+    $("#partnerType").disabled = true;
+  }
+  setTimeout(() => $("#partnerName")?.focus(), 0);
+}
+
+function updatePartnerFormCopy(partner) {
+  const title = $("#partnerFormTitle");
+  const description = $("#partnerFormDescription");
+  const submitButton = els.partnerForm?.querySelector('.form-actions .btn-primary');
+  if (!title || !description || !submitButton) return;
+
+  if (partner) {
+    title.textContent = "Partner bearbeiten";
+    description.textContent = "Bestehende Kooperation aktualisieren.";
+    submitButton.textContent = "Speichern";
+    return;
+  }
+
+  const label = pageTypeFilter() === "firma" ? "Firmenpartner" : pageTypeFilter() === "verein" ? "Vereinspartner" : "Partner";
+  title.textContent = `${label} anlegen`;
+  description.textContent = canManagePartners()
+    ? "Neue Kooperation erfassen und direkt freigeben."
+    : "Neue Kooperation erfassen. Sie wird erst nach Freigabe für alle sichtbar.";
+  submitButton.textContent = canManagePartners() ? "Speichern" : "Zur Freigabe einreichen";
+}
+
+function closePartnerForm() {
+  state.formOpen = false;
+  els.adminPanel.hidden = true;
+  document.body.classList.remove("modal-open");
+  resetForm();
+}
+
+function getSelectedTermsFromForm() {
+  return Array.from(document.querySelectorAll("[data-term-row]"))
+    .map((row) => {
+      const checkbox = row.querySelector('input[type="checkbox"][name="termMonths"]');
+      const amount = row.querySelector("[data-term-amount]");
+      return checkbox && checkbox.checked
+        ? {
+            months: checkbox.value,
+            amount: amount ? amount.value.trim() : "",
+          }
+        : null;
+    })
+    .filter(Boolean);
+}
+
+function setTermsInForm(partner) {
+  document.querySelectorAll("[data-term-row]").forEach((row) => {
+    const checkbox = row.querySelector('input[type="checkbox"][name="termMonths"]');
+    const amount = row.querySelector("[data-term-amount]");
+    if (checkbox) checkbox.checked = false;
+    if (amount) amount.value = "";
+  });
+
+  const terms = Array.isArray(partner.terms) && partner.terms.length
+    ? partner.terms
+    : partner.termMonths && partner.termAmount
+      ? [{ months: partner.termMonths, amount: partner.termAmount }]
+      : [];
+
+  terms.forEach((term) => {
+    const row = document.querySelector(`[data-term-row="${term.months}"]`);
+    if (!row) return;
+    const checkbox = row.querySelector('input[type="checkbox"][name="termMonths"]');
+    const amount = row.querySelector("[data-term-amount]");
+    if (checkbox) checkbox.checked = true;
+    if (amount) amount.value = term.amount || "";
+  });
+}
+
+function fillForm(partner) {
+  $("#partnerId").value = partner.id;
+  $("#partnerType").value = partner.type;
+  $("#partnerName").value = partner.name;
+  $("#contactName").value = partner.contactName;
+  $("#contactPhone").value = partner.contactPhone;
+  $("#contactEmail").value = partner.contactEmail;
+  $("#partnerStudio").value = partner.studio;
+  $("#closedBy").value = partner.closedBy;
+  $("#lastContact").value = partner.lastContact;
+  $("#contractUrl").value = partner.contractUrl || "";
+  setTermsInForm(partner);
+  if ($("#hasTransponderFee")) $("#hasTransponderFee").checked = Boolean(partner.hasTransponderFee);
+  if ($("#hasServiceFee")) $("#hasServiceFee").checked = Boolean(partner.hasServiceFee);
+  $("#conditions").value = formatPartnerConditions(partner);
+  $("#notes").value = partner.notes;
+}
+
+function handleFormSubmit(event) {
+  event.preventDefault();
+  const isNewPartner = !$("#partnerId").value;
+  if (!canManagePartners()) {
+    showToast("Nur Clubleiter können Partnerdaten bearbeiten.", "error");
+    return;
+  }
+  if (!els.partnerForm.checkValidity()) {
+    els.formError.hidden = false;
+    els.partnerForm.reportValidity();
+    return;
+  }
+
+  const id = $("#partnerId").value || `p-${Date.now()}`;
+  const contractUrlInput = $("#contractUrl").value.trim();
+  const contractUrl = cooperationContractUrl(contractUrlInput);
+  if (contractUrlInput && !contractUrl) {
+    showToast("Bitte gib einen gültigen HTTP- oder HTTPS-Link zum Kooperationsvertrag ein.", "error");
+    $("#contractUrl").focus();
+    return;
+  }
+  const terms = getSelectedTermsFromForm();
+  if (!terms.length || terms.some((term) => !term.amount)) {
+    showToast("Bitte wähle mindestens eine Laufzeit aus und trage den passenden Betrag ein.", "error");
+    return;
+  }
+
+  const partner = {
+    id,
+    type: $("#partnerType").value,
+    name: $("#partnerName").value.trim(),
+    contactName: $("#contactName").value.trim(),
+    contactPhone: $("#contactPhone").value.trim(),
+    contactEmail: $("#contactEmail").value.trim(),
+    studio: $("#partnerStudio").value,
+    closedBy: $("#closedBy").value.trim(),
+    lastContact: $("#lastContact").value,
+    contractUrl,
+    terms,
+    termMonths: "",
+    termAmount: "",
+    hasTransponderFee: $("#hasTransponderFee") ? $("#hasTransponderFee").checked : false,
+    hasServiceFee: $("#hasServiceFee") ? $("#hasServiceFee").checked : false,
+    conditions: "",
+    notes: $("#notes").value.trim(),
+    status: canManagePartners() ? "aktiv" : "offen",
+  };
+  partner.conditions = formatPartnerConditions(partner);
+
+  const existing = state.partners.findIndex((item) => item.id === id);
+  if (existing >= 0) state.partners[existing] = partner;
+  else state.partners.unshift(partner);
+  savePartners();
+  closePartnerForm();
+  render();
+  showToast(canManagePartners() ? `${partner.name} wurde gespeichert.` : `${partner.name} wurde zur Freigabe gespeichert.`);
+}
+
+function resetForm() {
+  if (!els.partnerForm || !$("#partnerId")) return;
+  els.partnerForm.reset();
+  $("#partnerId").value = "";
+  $("#lastContact").value = new Date().toISOString().slice(0, 10);
+  document.querySelectorAll("[data-term-row]").forEach((row) => {
+    const checkbox = row.querySelector('input[type="checkbox"][name="termMonths"]');
+    const amount = row.querySelector("[data-term-amount]");
+    if (checkbox) checkbox.checked = false;
+    if (amount) amount.value = "";
+  });
+  if ($("#hasTransponderFee")) $("#hasTransponderFee").checked = false;
+  if ($("#hasServiceFee")) $("#hasServiceFee").checked = false;
+  els.formError.hidden = true;
+}
+
+function renderAdminVisibility() {
+  if (els.overviewSections) els.overviewSections.hidden = true;
+  els.adminPanel.hidden = !state.formOpen;
+  els.partnerForm.querySelectorAll("input,select,textarea,button").forEach((field) => {
+    field.disabled = false;
+  });
+  if (!canManagePartners() && state.page !== "verwaltung") $("#partnerType").disabled = true;
+}
+
+function syncInputs() {
+  els.partnerSearch.value = state.query;
+  els.globalSearch.value = state.query;
+  els.studioFilter.value = state.studio;
+}
+
+function exportCurrentPartners() {
+  if (!canExportCurrentPage()) return;
+
+  const headers = [
+    "Partner",
+    "Art",
+    "Konditionen",
+    "Ansprechpartner",
+    "Telefon",
+    "E-Mail",
+    "Studio",
+    "Letzter Kontakt",
+    "Besonderheiten",
+    "Kooperation geschlossen von",
+    "Kooperationsvertrag",
+    "Status",
+  ];
+  const rows = filteredPartners().map((partner) => [
+    partner.name,
+    typeLabel(partner.type),
+    formatPartnerConditions(partner),
+    partner.contactName,
+    partner.contactPhone,
+    partner.contactEmail,
+    partner.studio,
+    formatDate(partner.lastContact),
+    partner.notes || "",
+    partner.closedBy,
+    partner.contractUrl || "",
+    partner.status,
+  ]);
+  const blob = createXlsxBlob(headers, rows);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const prefix = state.page === "firmenfitness" ? "firmenfitness" : "vereinsfitness";
+
+  link.href = url;
+  link.download = `${prefix}-partner-${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  showToast("Der XLSX-Export wurde erstellt.");
+}
+
+function createXlsxBlob(headers, rows) {
+  return createZipBlob([
+    {
+      name: "[Content_Types].xml",
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`,
+    },
+    {
+      name: "_rels/.rels",
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`,
+    },
+    {
+      name: "xl/workbook.xml",
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Partner" sheetId="1" r:id="rId1"/></sheets></workbook>`,
+    },
+    {
+      name: "xl/_rels/workbook.xml.rels",
+      content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`,
+    },
+    {
+      name: "xl/worksheets/sheet1.xml",
+      content: createWorksheetXml(headers, rows),
+    },
+  ]);
+}
+
+function createWorksheetXml(headers, rows) {
+  const allRows = [headers, ...rows];
+  const sheetData = allRows
+    .map((row, rowIndex) => {
+      const rowNumber = rowIndex + 1;
+      const cells = row
+        .map((cell, columnIndex) => {
+          const ref = `${columnName(columnIndex + 1)}${rowNumber}`;
+          return `<c r="${ref}" t="inlineStr"><is><t>${xmlEscape(cell)}</t></is></c>`;
+        })
+        .join("");
+      return `<row r="${rowNumber}">${cells}</row>`;
+    })
+    .join("");
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${sheetData}</sheetData></worksheet>`;
+}
+
+function xmlEscape(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function columnName(index) {
+  let name = "";
+  while (index > 0) {
+    const remainder = (index - 1) % 26;
+    name = String.fromCharCode(65 + remainder) + name;
+    index = Math.floor((index - 1) / 26);
+  }
+  return name;
+}
+
+const zipEncoder = new TextEncoder();
+let crcTable;
+
+function crc32(bytes) {
+  if (!crcTable) {
+    crcTable = Array.from({ length: 256 }, (_, index) => {
+      let value = index;
+      for (let bit = 0; bit < 8; bit += 1) {
+        value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+      }
+      return value >>> 0;
+    });
+  }
+
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function little16(value) {
+  return [value & 0xff, (value >>> 8) & 0xff];
+}
+
+function little32(value) {
+  return [value & 0xff, (value >>> 8) & 0xff, (value >>> 16) & 0xff, (value >>> 24) & 0xff];
+}
+
+function createZipBlob(files) {
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+
+  files.forEach((file) => {
+    const name = zipEncoder.encode(file.name);
+    const data = zipEncoder.encode(file.content);
+    const crc = crc32(data);
+    const local = new Uint8Array([
+      ...little32(0x04034b50),
+      ...little16(20),
+      ...little16(0),
+      ...little16(0),
+      ...little16(0),
+      ...little16(0),
+      ...little32(crc),
+      ...little32(data.length),
+      ...little32(data.length),
+      ...little16(name.length),
+      ...little16(0),
+      ...name,
+      ...data,
+    ]);
+    const central = new Uint8Array([
+      ...little32(0x02014b50),
+      ...little16(20),
+      ...little16(20),
+      ...little16(0),
+      ...little16(0),
+      ...little16(0),
+      ...little16(0),
+      ...little32(crc),
+      ...little32(data.length),
+      ...little32(data.length),
+      ...little16(name.length),
+      ...little16(0),
+      ...little16(0),
+      ...little16(0),
+      ...little16(0),
+      ...little32(0),
+      ...little32(offset),
+      ...name,
+    ]);
+
+    localParts.push(local);
+    centralParts.push(central);
+    offset += local.length;
+  });
+
+  const centralSize = centralParts.reduce((sum, part) => sum + part.length, 0);
+  const end = new Uint8Array([
+    ...little32(0x06054b50),
+    ...little16(0),
+    ...little16(0),
+    ...little16(files.length),
+    ...little16(files.length),
+    ...little32(centralSize),
+    ...little32(offset),
+    ...little16(0),
+  ]);
+
+  return new Blob([...localParts, ...centralParts, end], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+}
+
+function showToast(message, type = "success") {
+  els.toast.textContent = message;
+  els.toast.style.borderLeftColor = type === "error" ? "var(--error)" : "var(--success)";
+  els.toast.hidden = false;
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => (els.toast.hidden = true), 3600);
+}
+
+function render() {
+  renderHeader();
+  renderNavigation();
+  renderAdminVisibility();
+  renderList();
+  syncInputs();
+}
+
+function bindEvents() {
+  els.logoutButton.addEventListener("click", window.tsfLogout);
+  els.pagePrimaryAction?.addEventListener("click", () => openPartnerForm());
+  [els.partnerSearch, els.globalSearch].forEach((input) => {
+    input.addEventListener("input", (event) => {
+      state.query = event.target.value;
+      syncInputs();
+      renderList();
+    });
+  });
+  els.studioFilter.addEventListener("change", (event) => {
+    state.studio = event.target.value;
+    renderList();
+  });
+  els.resetFilters.addEventListener("click", () => {
+    state.query = "";
+    state.studio = "alle";
+    render();
+  });
+  els.emptyReset.addEventListener("click", () => {
+    state.query = "";
+    state.studio = "alle";
+    render();
+  });
+  els.partnerForm.addEventListener("submit", handleFormSubmit);
+  els.cancelEdit.addEventListener("click", closePartnerForm);
+  els.closeDrawer.addEventListener("click", closeDrawer);
+  els.detailBackdrop.addEventListener("click", closeDrawer);
+  els.adminPanel.addEventListener("click", (event) => {
+    if (event.target === els.adminPanel) closePartnerForm();
+  });
+  $("#suggestionForm")?.addEventListener("submit", sendSuggestionEmail);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeDrawer();
+      if (state.formOpen) closePartnerForm();
+    }
+  });
+}
+
+function sendSuggestionEmail(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  const partnerType = $("#suggestionType").value;
+  const partnerName = $("#suggestionName").value.trim();
+  const subject = `Vorschlag ${partnerType}: ${partnerName}`;
+  const body = [
+    `Firma/Verein: ${partnerName}`,
+    `Art: ${partnerType}`,
+    `Ansprechpartner: ${$("#suggestionContactName").value.trim()}`,
+    `Telefon: ${$("#suggestionPhone").value.trim() || "Nicht angegeben"}`,
+    `E-Mail: ${$("#suggestionEmail").value.trim() || "Nicht angegeben"}`,
+    "",
+    "Info / Grund für den Vorschlag:",
+    $("#suggestionInfo").value.trim(),
+    "",
+    `Vorgeschlagen von: ${$("#suggestedBy").value}`,
+  ].join("\n");
+
+  window.location.href = `mailto:firmenfitness@topsports-fitness.de?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function initialize() {
+  if (!canManagePartners() && state.page === "verwaltung") {
+    window.location.replace("firmenfitness.html");
+    return;
+  }
+
+  if (partnerPreview) {
+    document.body.classList.add("partner-preview");
+    const notice = document.createElement("section");
+    notice.className = "partner-connection-notice";
+    notice.setAttribute("role", "status");
+    notice.innerHTML = '<strong>Beispieldaten · keine echten Kooperationen</strong><p>Alle Firmen, Vereine und Tarife sind frei erfunden. Die Beträge sind monatliche Beispielbeiträge und keine gültigen Angebote. Die Beispiele werden nicht in die spätere Partnerdatenbank übernommen.</p>';
+    document.querySelector("main").prepend(notice);
+    const empty = document.querySelector("#emptyState");
+    if (empty) {
+      const heading = empty.querySelector("h3,h2,strong");
+      if (heading) heading.textContent = "Keine passenden Beispiele gefunden";
+      const description = empty.querySelector("p");
+      if (description) description.textContent = "Ändere den Suchbegriff oder wähle einen anderen Standort.";
+    }
+  }
+  bindEvents();
+  const suggestionSection = $("#suggestionSection");
+  if (suggestionSection) suggestionSection.hidden = partnerPreview || state.role !== "employee";
+  if ($("#suggestedBy")) {
+    const session = window.tsfAuth.readSession();
+    $("#suggestedBy").value = session?.name || session?.username || "";
+  }
+  resetForm();
+  const editId = new URLSearchParams(window.location.search).get("edit");
+  if (editId && state.page === "verwaltung") {
+    const partner = state.partners.find((item) => item.id === editId);
+    if (partner) state.formOpen = true;
+  }
+  render();
+  if (editId && state.page === "verwaltung") {
+    const partner = state.partners.find((item) => item.id === editId);
+    if (partner) openPartnerForm(partner);
+  }
+}
+
+initialize();

@@ -1,0 +1,11 @@
+const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('public/modules/partnerverwaltung/auth.js','utf8');
+const start=source.indexOf('function loginFailureMessage('),end=source.indexOf('async function currentSupabaseSession',start);
+const classify=vm.runInNewContext(source.slice(start,end)+';loginFailureMessage',{TypeError});
+assert.match(classify({code:'invalid_credentials'}),/Benutzername und Passwort/);
+assert.match(classify(new TypeError('Failed to fetch')),/konnten nicht geprüft/);
+assert.match(classify({name:'AuthRetryableFetchError'}),/nicht erreichbar/);
+assert.match(classify({status:503}),/nicht erreichbar/);
+assert.match(classify({status:429}),/Zu viele/);
+assert.doesNotMatch(classify({status:401}),/Zugangsdaten nicht erkannt/);
+console.log('PASS: credentials, unreachable server, rate limit and unknown errors distinguished.');

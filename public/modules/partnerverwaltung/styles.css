@@ -1,0 +1,56 @@
+@import "styles-base.css";
+@import "nav-icons.css";
+@import "nav-icon-company.css";
+@import "nav-icon-club.css";
+@import "nav-icon-manage.css";
+@import "nav-icon-users.css";
+@import "nav-icon-archive.css";
+@import "mobile-logo-style.css";
+
+.topbar{display:none!important}
+
+.nav-item[href]::after{
+  content:"";
+  order:-1;
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  background:currentColor;
+  -webkit-mask:var(--nav-icon) center/contain no-repeat;
+  mask:var(--nav-icon) center/contain no-repeat;
+}
+.nav-list .nav-item>span:first-child{display:none}
+
+@media(max-width:1023px){
+  .bottom-nav .nav-item{
+    min-height:76px;
+    gap:6px;
+    padding:8px 3px 7px;
+    font-size:0;
+    line-height:1;
+  }
+  .bottom-nav .nav-item:has(>span:nth-child(2))>span:first-child{display:none}
+  .bottom-nav .nav-item::after{
+    width:28px;
+    height:28px;
+    flex-basis:28px;
+  }
+  .bottom-nav .nav-item>span:last-child{
+    display:block;
+    width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:11px;
+    line-height:1.15;
+    font-weight:700;
+  }
+}
+
+@media(max-width:390px){
+  .bottom-nav .nav-item::after{width:26px;height:26px;flex-basis:26px}
+  .bottom-nav .nav-item>span:last-child{font-size:10px}
+}
+.partner-preview .role-card,.partner-preview #suggestionSection{display:none!important}
+.partner-connection-notice{background:#f9a72b;color:#111;padding:18px 22px;border-radius:12px;margin-bottom:24px}
+.partner-connection-notice strong{font-size:17px}.partner-connection-notice p{color:#111;margin:6px 0 0;max-width:70ch;line-height:1.5}

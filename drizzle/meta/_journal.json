@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790596127787,
+      "tag": "0000_married_mattie_franklin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790602661911,
+      "tag": "0001_wooden_joshua_kane",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790604065101,
+      "tag": "0002_design_studio",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790604322178,
+      "tag": "0003_partnerverwaltung",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1790605853750,
+      "tag": "0004_mean_hiroim",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1790607384741,
+      "tag": "0005_stale_dragon_man",
+      "breakpoints": true
+    }
+  ]
+}

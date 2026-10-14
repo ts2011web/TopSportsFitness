@@ -1,0 +1,1 @@
+UPDATE dashboard SET config=json_insert(config,'$.tools[#]',json('{"id":"design-studio","name":"TOP SPORTS Editor","description":"Aushänge, Events und Gutscheine gestalten","url":"","icon":"ideas","color":"orange","kind":"design-studio"}')),revision=revision+1 WHERE NOT EXISTS(SELECT 1 FROM json_each(dashboard.config,'$.tools') WHERE json_extract(value,'$.kind')='design-studio');
