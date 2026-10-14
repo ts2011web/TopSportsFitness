@@ -1,0 +1,65 @@
+name: Publish TS Cockpit to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check whether source import is needed
+        id: source
+        run: |
+          if [ ! -f public/modules/design-studio/index.html ]; then echo "missing=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Load the existing Cockpit source
+        if: steps.source.outputs.missing == 'true'
+        uses: actions/checkout@v6
+        with:
+          repository: RewitzerTS/TS-Cockpit
+          ref: 6764360b8fb01b691df315b5ff40d4e6334f38ce
+          path: _legacy
+          persist-credentials: false
+      - name: Preserve modules and assets in the new repository
+        if: steps.source.outputs.missing == 'true'
+        run: |
+          python3 scripts/import-cockpit-source.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Import existing Cockpit modules and assets"
+          git push origin HEAD:main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node tests/pages.cjs
+      - run: npx tsc --noEmit
+      - run: npm run build:pages
+        env:
+          VITE_COCKPIT_MODE: live
+          COCKPIT_BASE_PATH: /TopSportsFitness/
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist-pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
